@@ -12,6 +12,8 @@ from urllib import parse
 from collections import OrderedDict, Counter
 from flask import Flask, request
 
+
+
 filename1 = 'data/cooknutrienttable.csv'
 filename2 = 'data/recommendednutrienttable.csv'
 filepath1 = os.path.join(os.path.dirname(__file__), filename1)
@@ -251,3 +253,240 @@ def over_nutrient(gender, age, preg, lunchlist, df1, df2):
         return overnutrient, noinfolist
     else:
         return 'normal', noinfolist
+
+app = Flask(__name__)
+
+@app.route('/foodrecommend/service1', endpoint='service1')
+def service1():
+    try:
+        # 데이터 포맷 #
+        group_data = OrderedDict()
+
+        # 하루 동안 먹은 음식 리스트 #
+        fdlist = request.args.get('fdlist', type=str)
+        fdlist = parse.unquote(fdlist)
+        # 에외 처리
+
+        if len(fdlist) == 0:
+            raise ValueError('음식을 적어 주세요~')
+
+        fdlist = [x.replace(' ','') for x in fdlist.split(',')]
+
+        a = []
+        b = ''
+        c = []
+        for i in fdlist:
+            if extract_nutrient(df1, i) != 0:
+                a.append(extract_nutrient(df1, i)[1])
+                c.append(extract_nutrient(df1, i)[0])
+            else:
+                b = b + i + ', '
+
+        if len(b) > 2:
+            exmg = b[:-2] + '에 대한 음식정보는 없습니다.'
+        else:
+            exmg = ''
+
+        if len(a) != 0:
+            bb = sum(a)
+            b1 = ['1회제공량', '열량', '탄수화물', '단백질', '지방', '당', '나트륨', '콜레스테롤', '포화지방', '트랜스지방']
+            cc = bb.to_dict()
+            aa = [float(format(x, '.2f')) for x in cc.values()]
+            result = dict(zip(b1, aa))
+            result.pop('1회제공량')
+            foodname = c
+        else:
+            result = ''
+            foodname = ''
+
+        group_data['status'] = 'ok'
+        group_data['type'] = 1
+        group_data['foodname'] = foodname
+        group_data['result'] = result
+        group_data['message'] = exmg
+        #group_data['elapsed_time'] = elapsed_time
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+
+        return response
+
+    except ValueError as ex:
+        group_data = OrderedDict()
+        group_data['status'] = 'error'
+        group_data['error_message'] = str(ex)
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+        return response
+
+@app.route('/foodrecommend/service2', endpoint='service2')
+def service2():
+    try:
+        # 데이터 포맷 #
+        group_data = OrderedDict()
+
+        # 하루 동안 먹은 음식 리스트 #
+        gender = request.args.get('gender', type=int)
+        age = request.args.get('age', type=int)
+        preg = request.args.get('preg', type=int)
+        fdlist = request.args.get('fdlist', type=str)
+        fdlist = parse.unquote(fdlist)
+        # 에외 처리
+        if type(gender) != int:
+            raise ValueError('성별을 선택하세요')
+        if type(age) != int:
+            raise ValueError('연령대를 선택세요')
+        if gender == 0 and type(preg) != int:
+            raise ValueError('임신 여부를 선택하세요')
+        if len(fdlist) == 0:
+            raise ValueError('음식을 적어 주세요~')
+
+        fdlist = [x.replace(' ','') for x in fdlist.split(',')]
+        a = []
+        b = ''
+        c = []
+        for i in fdlist:
+            if extract_nutrient(df1, i) != 0:
+                a.append(extract_nutrient(df1, i)[1])
+                c.append(extract_nutrient(df1, i)[0])
+            else:
+                b = b + i + ', '
+
+        if len(b) > 2:
+            exmg = b[:-2] + '에 대한 음식정보는 없습니다.'
+        else:
+            exmg = ''
+
+        if len(a) != 0:
+            bb = sum(a)
+            b1 = ['1회제공량', '열량', '탄수화물', '단백질', '지방', '당', '나트륨', '콜레스테롤', '포화지방', '트랜스지방']
+            cc = bb.to_dict()
+            aa = [float(format(x, '.2f')) for x in cc.values()]
+            result = dict(zip(b1, aa))
+            result.pop('1회제공량')
+            foodname = c
+        else:
+            result = ''
+            foodname = ''
+
+        # 권장 영양소 정보 #
+        a = df2.loc[(df2['gender'] == gender) & (df2['age'] == age)]
+        if preg == 0:
+            res = a
+        elif preg == 1:
+            a['na'] = 1500
+        elif preg == 2:
+            a['recommended cal'] = a['recommended cal'] + 340
+            a['na'] = 1500
+            a['protein2'] = a['protein2'] + 13.5
+        elif preg == 3:
+            a['recommended cal'] = a['recommended cal'] + 450
+            a['na'] = 1500
+            a['protein2'] = a['protein2'] + 27.5
+
+        b = {'열량': int(a['recommended cal']), '탄수화물': float(a['carbo2']), '단백질': float(a['protein2']),
+             '지방': float(a['fat2']), '당': float(a['sugar2']), '나트륨': float(a['na']), \
+             '콜레스테롤': int(a['chol']), '포화지방': float(a['saturated fat']), '트랜스지방': float(a['trans fat'])}
+        bb = [float(format(x, '.2f')) for x in b.values()]
+        result2 = dict(zip(b.keys(), bb))
+        over = []
+        per = []
+        if len(result) != 0:
+            for k, v in result.items():
+                if v >= result2[k]:
+                    over.append(k)
+                    x = float(format(100 * (v - result2[k]) / result2[k], '.2f'))
+                    per.append(x)
+            if len(over) > 0:
+                subres = dict(zip(over, per))
+            else:
+                subres = {'': ''}
+        else:
+            subres = {'': ''}
+
+        group_data['status'] = 'ok'
+        group_data['type'] = 2
+        group_data['result'] = result
+        group_data['result2'] = result2
+        group_data['result3'] = subres
+        group_data['message'] = exmg
+        #group_data['elapsed_time'] = elapsed_time
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+
+        return response
+
+    except ValueError as ex:
+        group_data = OrderedDict()
+        group_data['status'] = 'error'
+        group_data['error_message'] = str(ex)
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+        return response
+
+@app.route('/foodrecommend/service3', endpoint='service3')
+def service3():
+    try:
+        # 데이터 포맷 #
+        group_data = OrderedDict()
+
+        # 하루 동안 먹은 음식 리스트 #
+        gender = request.args.get('gender', type=int)
+        age = request.args.get('age', type=int)
+        preg = request.args.get('preg', type=int)
+        #kinds = request.args.get('kinds', type=str)
+        #kinds = parse.unquote(kinds)
+        kinds = '밥류'
+        # 에외 처리
+        if type(gender) != int:
+            raise ValueError('성별을 선택하세요')
+        if type(age) != int:
+            raise ValueError('연령대를 선택세요')
+        if gender == 0 and type(preg) != int:
+            raise ValueError('임신 여부를 선택하세요')
+        if len(kinds) == 0:
+            raise ValueError('음식 종류를 선택하세요~')
+
+        result = recommend_food(gender,age,preg,kinds,df1,df2)
+        fdlist = result[0]
+        a = []
+        b = ''
+        c = []
+        for i in fdlist:
+            if extract_nutrient(df1, i) != 0:
+                a.append(extract_nutrient(df1, i)[1])
+                c.append(extract_nutrient(df1, i)[0])
+            else:
+                b = b + i + ', '
+
+        if len(b) > 2:
+            exmg = b[:-2] + '에 대한 음식정보는 없습니다.'
+        else:
+            exmg = ''
+
+        if len(a) != 0:
+            bb = sum(a)
+            b1 = ['1회제공량', '열량', '탄수화물', '단백질', '지방', '당', '나트륨', '콜레스테롤', '포화지방', '트랜스지방']
+            cc = bb.to_dict()
+            aa = [float(format(x, '.2f')) for x in cc.values()]
+            temp = dict(zip(b1, aa))
+            temp.pop('1회제공량')
+            foodname = c
+        else:
+            result = ''
+            foodname = ''
+
+        group_data['status'] = 'ok'
+        group_data['type'] = 3
+        group_data['result'] = result[0]
+        group_data['result1'] = temp
+        #group_data['message'] = exmg
+        #group_data['elapsed_time'] = elapsed_time
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+
+        return response
+
+    except ValueError as ex:
+        group_data = OrderedDict()
+        group_data['status'] = 'error'
+        group_data['error_message'] = str(ex)
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+        return response
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=4996)
