@@ -66,7 +66,7 @@ def extract_nutrient(df, food):
         else:
             return 0
 
-def recommend_food(gender, age, preg, kinds, df1, df2):
+def recommend_food_temp(gender, age, preg, kinds, df1, df2):
     # gender = 성별, age = 연령대, preg = 임신여부, df1 = 음식 영양소 데이터, df2 = 권장영양소 섭취량 데이터
     b = df2.loc[(df2['gender']==gender) & (df2['age']==age)]
 
@@ -152,6 +152,108 @@ def recommend_food(gender, age, preg, kinds, df1, df2):
 
     res_list = list(map(sum,res_list))
     return food_name, res_list
+
+def scrap_weather():
+    response = requests.get('https://pythondojang.bitbucket.io/weather/observation/currentweather.html')
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    table = soup.find('table', { 'class': 'table_develop3' })    # <table class="table_develop3">을 찾음
+    data = []                            # 데이터를 저장할 리스트 생성
+    for tr in table.findAll('tr'):      # 모든 <tr> 태그를 찾아서 반복(각 지점의 데이터를 가져옴)
+        tds = tr.find_all('td')    # 모든 <td> 태그를 찾아서 리스트로 만듦
+                                         # (각 날씨 값을 리스트로 만듦)
+        for td in tds:                   # <td> 태그 리스트 반복(각 날씨 값을 가져옴)
+            if td.find('a'):             # <td> 안에 <a> 태그가 있으면(지점인지 확인)
+                point = td.find('a').text    # <a> 태그 안에서 지점을 가져옴
+                temperature = tds[5].text    # <td> 태그 리스트의 여섯 번째(인덱스 5)에서 기온을 가져옴
+                humidity = tds[9].text       # <td> 태그 리스트의 열 번째(인덱스 9)에서 습도를 가져옴
+                data.append([point, temperature, humidity])    # data 리스트에 지점, 기온, 습도를 추가
+    return data
+
+def cal_discomfortindex(temperature,humidity):
+    res = 9*temperature/5 - 0.55*(1-humidity/100)*(9*temperature/5-26)+32
+    if res >= 80:
+        level = 4
+    elif res < 80 and res >= 75:
+        level = 3
+    elif res < 75 and res >= 68:
+        level = 2
+    else:
+        level = 1
+    return res, level
+
+def recommend_food(gender, age, preg, kinds, df1, df2, hbp='', diabetes='', diet=''):
+    b = df2.loc[(df2['gender'] == gender) & (df2['age'] == age)]
+
+    # 일단 반찬같은거는 무시한다고 가정
+    ## 일단 밥류로 한정하여 권장칼로리에 가장가까운 아침점심저녁 추천
+    ## 알러지 문제, 반찬추가, 데이터 정제
+    temp = df1.loc[(df1['type2'] == kinds) & (df1['type1'] == '메인')]
+    if hbp == 1:
+        temp = temp[temp['hbp'] == 1]
+    if diabetes == 1:
+        temp = temp[temp['diabetes'] == 1]
+    if diet == 1:
+        temp = temp[temp['diet'] == 1]
+
+    index_range = list(range(len(temp)))
+
+    temp_index = []
+    for i in index_range:
+        temp_list = []
+        for j in range(8, 16):
+            temp_list.append(temp[temp.columns[j]].iloc[i])
+        res = temp_list
+        if preg == 0:
+            if res[0] <= float(b['carbo2'] / 3) and \
+                    res[1] <= float(b['protein2'] / 3) and \
+                    res[2] <= float(b['fat2'] / 3) and \
+                    res[3] <= float(b['sugar2'] / 3) and \
+                    res[4] <= float(b['na'] / 3) and \
+                    res[5] <= float(b['chol'] / 3) and \
+                    res[6] <= float(b['saturated fat'] / 3) and \
+                    res[7] <= float(b['trans fat'] / 3):
+                temp_index.append(i)
+        elif preg == 1:
+            if res[0] <= float(b['carbo2'] / 3) and \
+                    res[1] <= float(b['protein2'] / 3) and \
+                    res[2] <= float(b['fat2'] / 3) and \
+                    res[3] <= float(b['sugar2'] / 3) and \
+                    res[4] <= 500 and \
+                    res[5] <= float(b['chol'] / 3) and \
+                    res[6] <= float(b['saturated fat'] / 3) and \
+                    res[7] <= float(b['trans fat'] / 3):
+                temp_index.append(i)
+        elif preg == 2:
+            if res[0] <= float(b['carbo2'] / 3) and \
+                    res[1] <= (float(b['protein2']) + 13.5) / 3 and \
+                    res[2] <= float(b['fat2'] / 3) and \
+                    res[3] <= float(b['sugar2'] / 3) and \
+                    res[4] <= 500 and \
+                    res[5] <= float(b['chol'] / 3) and \
+                    res[6] <= float(b['saturated fat'] / 3) and \
+                    res[7] <= float(b['trans fat'] / 3):
+                temp_index.append(i)
+        else:
+            if res[0] <= float(b['carbo2'] / 3) and \
+                    res[1] <= (float(b['protein2']) + 27.5) / 3 and \
+                    res[2] <= float(b['fat2'] / 3) and \
+                    res[3] <= float(b['sugar2'] / 3) and \
+                    res[4] <= 500 and \
+                    res[5] <= float(b['chol'] / 3) and \
+                    res[6] <= float(b['saturated fat'] / 3) and \
+                    res[7] <= float(b['trans fat'] / 3):
+                temp_index.append(i)
+
+    a = list(range(len(temp_index)))
+    index = random.choices(a, k=1)[0]
+    bb = temp_index[index]
+    food_name = temp['fdname'].iloc[bb]
+
+    nut_info = []
+    for i in range(6, 16):
+        nut_info.append(float(temp[temp['fdname'] == food_name][temp.columns[i]]))
+    return food_name, nut_info
 
 
 def find_common_word(b, c, split_space=True, drop_onelength=True):
@@ -421,6 +523,75 @@ def service2():
 
 @app.route('/foodrecommend/service3', endpoint='service3')
 def service3():
+    try:
+        # 데이터 포맷 #
+        group_data = OrderedDict()
+
+        # 하루 동안 먹은 음식 리스트 #
+        gender = request.args.get('gender', type=int)
+        age = request.args.get('age', type=int)
+        preg = request.args.get('preg', type=int)
+        #kinds = request.args.get('kinds', type=str)
+        #kinds = parse.unquote(kinds)
+        kinds = '밥류'
+        # 에외 처리
+        if type(gender) != int:
+            raise ValueError('성별을 선택하세요')
+        if type(age) != int:
+            raise ValueError('연령대를 선택세요')
+        if gender == 0 and type(preg) != int:
+            raise ValueError('임신 여부를 선택하세요')
+        if len(kinds) == 0:
+            raise ValueError('음식 종류를 선택하세요~')
+
+        result = recommend_food(gender,age,preg,kinds,df1,df2)
+        fdlist = result[0]
+        a = []
+        b = ''
+        c = []
+        for i in fdlist:
+            if extract_nutrient(df1, i) != 0:
+                a.append(extract_nutrient(df1, i)[1])
+                c.append(extract_nutrient(df1, i)[0])
+            else:
+                b = b + i + ', '
+
+        if len(b) > 2:
+            exmg = b[:-2] + '에 대한 음식정보는 없습니다.'
+        else:
+            exmg = ''
+
+        if len(a) != 0:
+            bb = sum(a)
+            b1 = ['1회제공량', '열량', '탄수화물', '단백질', '지방', '당', '나트륨', '콜레스테롤', '포화지방', '트랜스지방']
+            cc = bb.to_dict()
+            aa = [float(format(x, '.2f')) for x in cc.values()]
+            temp = dict(zip(b1, aa))
+            temp.pop('1회제공량')
+            foodname = c
+        else:
+            result = ''
+            foodname = ''
+
+        group_data['status'] = 'ok'
+        group_data['type'] = 3
+        group_data['result'] = result[0]
+        group_data['result1'] = temp
+        #group_data['message'] = exmg
+        #group_data['elapsed_time'] = elapsed_time
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+
+        return response
+
+    except ValueError as ex:
+        group_data = OrderedDict()
+        group_data['status'] = 'error'
+        group_data['error_message'] = str(ex)
+        response = json.dumps(group_data, ensure_ascii=False, indent='\t')
+        return response
+
+@app.route('/foodrecommend/service4', endpoint='service4')
+def service4():
     try:
         # 데이터 포맷 #
         group_data = OrderedDict()
