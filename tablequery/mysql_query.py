@@ -39,10 +39,10 @@ def single_select(cnx,sel,frm):
     print_cursor(cursor)
 
 
-def get_db_all(cnx):
+def get_db_all(cnx,tablename):
     cursor = cnx.cursor()
-    query = "SELECT * FROM fooddata"
-    cursor.execute("SELECT * FROM fooddata")
+    query = "SELECT * FROM {0}".format(tablename)
+    cursor.execute(query)
     print_cursor(cursor)
 
 def get_column_name(cnx,tablename):
@@ -58,6 +58,6 @@ def get_column_type(cnx,tablename,column):
     print_cursor(cursor)
     
 aa = init_session()
-get_column_type(aa,"fooddata","year")
+get_db_all(aa,"cooknutrient")
 
 

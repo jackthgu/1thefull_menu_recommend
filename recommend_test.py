@@ -12,6 +12,8 @@ from urllib import parse
 from collections import OrderedDict, Counter
 from flask import Flask, request
 
+import pdb
+
 
 
 filename1 = 'data/cooknutrienttable.csv'
@@ -20,6 +22,7 @@ filepath1 = os.path.join(os.path.dirname(__file__), filename1)
 filepath2 = os.path.join(os.path.dirname(__file__), filename2)
 df1 = pd.read_csv(filepath1, engine='python')
 df2 = pd.read_csv(filepath2, engine='python')
+pdb.set_trace()
 
 def extract_nutrient(df, food):
     if food.isalnum() == False:

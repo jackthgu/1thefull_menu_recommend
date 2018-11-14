@@ -8,6 +8,7 @@ import logging
 from logging import Formatter, FileHandler
 from forms import *
 import os
+import table_test
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -67,6 +68,11 @@ def register():
 def forgot():
     form = ForgotForm(request.form)
     return render_template('forms/forgot.html', form=form)
+
+@app.route('/sqltest')
+def sqltest():
+    return render_template('pages/placeholder.sqltest.html')
+    
 
 # Error handlers.
 
