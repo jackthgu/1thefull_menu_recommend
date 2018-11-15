@@ -1,0 +1,16 @@
+CREATE TABLE cooknutrient (
+	id INT AUTO_INCREMENT PRIMARY KEY, 
+	`group` VARCHAR(12) NOT NULL, 
+	fdname VARCHAR(51) NOT NULL, 
+	size DECIMAL(38, 0) NOT NULL, 
+	kcal DECIMAL(38, 2) NOT NULL, 
+	carbon DECIMAL(38, 2) NOT NULL, 
+	protein DECIMAL(38, 2) NOT NULL, 
+	fat DECIMAL(38, 2) NOT NULL, 
+	sugar DECIMAL(38, 2) NOT NULL, 
+	na DECIMAL(38, 2) NOT NULL, 
+	chol DECIMAL(38, 2) NOT NULL, 
+	saturatedfat DECIMAL(38, 2) NOT NULL, 
+	transfat DECIMAL(38, 2) NOT NULL, 
+	year DECIMAL(4,0) NOT NULL
+);

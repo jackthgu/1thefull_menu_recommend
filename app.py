@@ -8,13 +8,19 @@ import logging
 from logging import Formatter, FileHandler
 from forms import *
 import os
+import table_test
+import random as rd
 
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
 
+PEOPLE_FOLDER = os.path.join('static', 'datateam_photo')
+
+
 app = Flask(__name__)
 app.config.from_object('config')
+app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
 #db = SQLAlchemy(app)
 
 # Automatically tear down SQLAlchemy.
@@ -47,8 +53,13 @@ def home():
 
 
 @app.route('/about')
+#def about():
+#    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'gu.gif')
+#    return render_template('pages/placeholder.about.html',user_image = full_filename)
 def about():
-    return render_template('pages/placeholder.about.html')
+    full_filenames = [app.config['UPLOAD_FOLDER']+'/' + i for i in os.listdir(app.config['UPLOAD_FOLDER'])]
+    rd.shuffle(full_filenames)
+    return render_template('pages/placeholder.about.html', user_image = full_filenames)
 
 
 @app.route('/login')
@@ -67,6 +78,22 @@ def register():
 def forgot():
     form = ForgotForm(request.form)
     return render_template('forms/forgot.html', form=form)
+
+@app.route('/sqltest')
+def sqltest():
+    return render_template('pages/placeholder.menu.html')
+
+@app.route('/table')
+def table():
+    return render_template('pages/placeholder.menu.html')
+
+@app.route('/lotto')
+def lotto():
+    return render_template('pages/placeholder.menu.html')
+
+@app.route('/base')
+def base():
+    return render_template('layouts/base.html')
 
 # Error handlers.
 
@@ -97,7 +124,8 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    #app.run()
+    app.run(host='0.0.0.0')
 
 # Or specify port manually:
 '''

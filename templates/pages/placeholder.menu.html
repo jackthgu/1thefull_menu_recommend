@@ -1,0 +1,35 @@
+<!-- /templates/update_flight.html  -->
+
+{% extends 'layouts/main.html' %}
+
+{% block content %}
+<form method="POST" id="target"> 
+  <div class="form-group">
+    <input type="text" class="form-control" name="flight" value="data">
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" name="destination" value="destination">
+  </div>
+  <div class="form-group">
+    <input 
+      type="text" 
+      class="form-control datetime"
+      name="check_in" 
+      value="check"
+      >
+  </div>
+  <div class="form-group">
+    <input 
+      type="text" 
+      class="form-control datetime" 
+      name="depature" 
+      value="departure"
+      >
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" name="status" value="data">
+  </div>
+  <button type="submit" class="btn btn-block btn-primary">Update</button>
+</form>
+{% endblock %}
+
