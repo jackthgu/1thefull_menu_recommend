@@ -9,6 +9,7 @@ from logging import Formatter, FileHandler
 from forms import *
 import os
 import table_test
+import random as rd
 
 #----------------------------------------------------------------------------#
 # App Config.
@@ -52,9 +53,13 @@ def home():
 
 
 @app.route('/about')
+#def about():
+#    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'gu.gif')
+#    return render_template('pages/placeholder.about.html',user_image = full_filename)
 def about():
-    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'gu.gif')
-    return render_template('pages/placeholder.about.html',user_image = full_filename)
+    full_filenames = [app.config['UPLOAD_FOLDER']+'/' + i for i in os.listdir(app.config['UPLOAD_FOLDER'])]
+    rd.shuffle(full_filenames)
+    return render_template('pages/placeholder.about.html', user_image = full_filenames)
 
 
 @app.route('/login')
