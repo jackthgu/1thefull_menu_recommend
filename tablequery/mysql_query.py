@@ -58,6 +58,6 @@ def get_column_type(cnx,tablename,column):
     print_cursor(cursor)
     
 aa = init_session()
-get_column_type(aa,"fooddata","year")
+get_db_all(aa)
 
 
