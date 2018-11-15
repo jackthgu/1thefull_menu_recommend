@@ -14,8 +14,12 @@ import table_test
 # App Config.
 #----------------------------------------------------------------------------#
 
+PEOPLE_FOLDER = os.path.join('static', 'datateam_photo')
+
+
 app = Flask(__name__)
 app.config.from_object('config')
+app.config['UPLOAD_FOLDER'] = PEOPLE_FOLDER
 #db = SQLAlchemy(app)
 
 # Automatically tear down SQLAlchemy.
@@ -49,7 +53,8 @@ def home():
 
 @app.route('/about')
 def about():
-    return render_template('pages/placeholder.about.html')
+    full_filename = os.path.join(app.config['UPLOAD_FOLDER'], 'gu.gif')
+    return render_template('pages/placeholder.about.html',user_image = full_filename)
 
 
 @app.route('/login')
@@ -71,7 +76,11 @@ def forgot():
 
 @app.route('/sqltest')
 def sqltest():
-    return render_template('pages/placeholder.sqltest.html')
+    return render_template('pages/placeholder.menu.html')
+
+@app.route('/table')
+def table():
+    return render_template('pages/placeholder.menu.html')
     
 
 # Error handlers.

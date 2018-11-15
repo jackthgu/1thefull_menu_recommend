@@ -23,9 +23,10 @@ items = [dict(name='Name1', description='Description1'),
 # Or, more likely, load items from your database with something like
 #items = ItemModel.query.all()
 
+def test():
 # Populate the table
-table = ItemTable(items)
+    table = ItemTable(items)
 
-# Print the html
-print(table.__html__())
+    # Print the html
+    print(table.__html__())
 # or just {{ table }} from within a Jinja template
