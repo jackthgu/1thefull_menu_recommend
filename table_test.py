@@ -26,7 +26,6 @@ items = [dict(name='Name1', description='Description1'),
 def test():
 # Populate the table
     table = ItemTable(items)
-
     # Print the html
     print(table.__html__())
 # or just {{ table }} from within a Jinja template

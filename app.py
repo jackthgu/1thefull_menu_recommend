@@ -81,7 +81,14 @@ def sqltest():
 @app.route('/table')
 def table():
     return render_template('pages/placeholder.menu.html')
-    
+
+@app.route('/lotto')
+def lotto():
+    return render_template('pages/placeholder.menu.html')
+
+@app.route('/base')
+def base():
+    return render_template('layouts/base.html')
 
 # Error handlers.
 
@@ -112,7 +119,8 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    #app.run()
+    app.run(host='0.0.0.0')
 
 # Or specify port manually:
 '''
