@@ -95,6 +95,10 @@ def lotto():
 def base():
     return render_template('layouts/base.html')
 
+@app.route('/service')
+def service():
+    return render_template('pages/placeholder.service.html')
+
 # Error handlers.
 
 
