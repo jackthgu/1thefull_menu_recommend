@@ -4,6 +4,7 @@
 
 <div class="page-header">
   <h1>About Page</h1>
+	<img src="http://www.exampleimagehost.com/my-cute-dog.jpg" alt="my dog eating a tangerine" style="width:300px;height:150px;">
 </div>
 <p class="lead">Wonderful Datateam Member</p>
 
@@ -12,13 +13,15 @@
 
 <div class="row">
 	{% for image in user_image %}
-	<div class="card col-lg-4">
+	<div class="card col-md-4">
 		<img src="{{ image }}" alt="User Image" style="width:120px;height:150px;">
 		<div class="card-block">
 			<h4 class="card-title">{{image[22:-4]}}</h4>
 			<div class="card-text">SomeSelfIntro</div>
 			<button class="btn btn-primary">Click</button>
 		</div>
+
+
 	</div>
 	{% endfor %}
 </div>
