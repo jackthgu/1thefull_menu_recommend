@@ -1,3 +1,10 @@
+from selenium import webdriver
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+import re
+import json
+import urllib
+
 p = re.compile('^(\d+[a-z])')
 p1 = re.compile('(\w+\(?\w+\)?)')
 p2 = re.compile('(\d+)')
