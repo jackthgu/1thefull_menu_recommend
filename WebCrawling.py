@@ -7,6 +7,19 @@ import re
 import json
 import urllib
 
+## 사전 세팅 ##
+options = webdriver.ChromeOptions()
+options.add_argument('headless')
+driver = webdriver.Chrome('C:/Users/User/chromedriver_win32/chromedriver.exe',chrome_options=options)
+driver.implicitly_wait(3)
+
+with urllib.request.urlopen('http://api.fooding.io/search?price=&week=&time=&headcount=&filter_list=&type=1&search_content=') as url:
+    data = json.loads(url.read().decode())
+
+driver.get('http://www.fooding.io/after-filter?week=&time=&headcount=&type=1&search_content=')
+html = driver.page_source
+soup = BeautifulSoup(html,'html.parser')
+
 p = re.compile('^(\d+[a-z])')
 p1 = re.compile('(\w+\(?\w+\)?)')
 p2 = re.compile('(\d+)')
