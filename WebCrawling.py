@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -10,7 +10,7 @@ import urllib
 ## 사전 세팅 ##
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
-driver = webdriver.Chrome('C:/Users/User/chromedriver_win32/chromedriver.exe',chrome_options=options)
+driver = webdriver.Chrome('/usr/bin/chromedriver',chrome_options=options)
 driver.implicitly_wait(3)
 
 with urllib.request.urlopen('http://api.fooding.io/search?price=&week=&time=&headcount=&filter_list=&type=1&search_content=') as url:
