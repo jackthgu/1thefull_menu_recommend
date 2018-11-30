@@ -9,7 +9,10 @@ import urllib
 import pdb
 
 
-class fooding:
+class market_fooding:
+
+    market_name='fooding'
+    
     def __init__(self):
         ## 사전 세팅 ##
         self.options = webdriver.ChromeOptions()
@@ -71,6 +74,3 @@ class fooding:
         print(self.origin)
         print(self.material_only)
 
-aa = fooding()
-aa.get_data()
-aa.print()
