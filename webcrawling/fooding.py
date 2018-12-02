@@ -7,6 +7,7 @@ import re
 import json
 import urllib
 import pdb
+from db_manager import dbmanager
 
 
 class market_fooding:
@@ -35,6 +36,7 @@ class market_fooding:
         self.nutrient = []  # 영양소(아직 없음)
         self.material = []  # 재료
         self.weight = []  # 중량
+#        self.attribute_name = 
 
 
     def get_data(self):
