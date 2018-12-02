@@ -8,7 +8,7 @@ import base64
 import random
 import datetime
 import pdb
-from market_fooding import fooding 
+from fooding import market_fooding
  
 class MyDaemon(Daemon):
     def run(self):
@@ -20,7 +20,7 @@ class MyDaemon(Daemon):
  
 if __name__ == "__main__":
     fooding = market_fooding()
-    fooding.get_date()
+    
     
     # daemon = MyDaemon('/tmp/daemon-example.pid')
     # if len(sys.argv) == 2:

@@ -7,36 +7,35 @@ import re
 import json
 import urllib
 import pdb
-from db_manager import dbmanager
+from dbmanager_singleton import db_manager
 
 
 class market_fooding:
 
     market_name='fooding'
+    name = []  # 음식이름
+    price = []  # 가격
+    nutrient = []  # 영양소(아직 없음)
+    material = []  # 재료
+    weight = []  # 중량
+
     
     def __init__(self):
-        ## 사전 세팅 ##
+        self.dbmanager = db_manager()
         self.options = webdriver.ChromeOptions()
         self.options.add_argument('headless')
         self.driver = webdriver.Chrome('/usr/bin/chromedriver',chrome_options=self.options)
         self.driver.implicitly_wait(3)
+        self.driver.get('http://www.fooding.io/after-filter?week=&time=&headcount=&type=1&search_content=')
 
         with urllib.request.urlopen('http://api.fooding.io/search?price=&week=&time=&headcount=&filter_list=&type=1&search_content=') as url:
             self.data = json.loads(url.read().decode())
-        self.driver.get('http://www.fooding.io/after-filter?week=&time=&headcount=&type=1&search_content=')
+
         self.html = self.driver.page_source
         self.soup = BeautifulSoup(self.html,'html.parser')
-
         self.p = re.compile('^(\d+[a-z])')
         self.p1 = re.compile('(\w+\(?\w+\)?)')
         self.p2 = re.compile('(\d+)')
-        ##3요놈으로 하면 되겠네
-        self.name = []  # 음식이름
-        self.price = []  # 가격
-        self.nutrient = []  # 영양소(아직 없음)
-        self.material = []  # 재료
-        self.weight = []  # 중량
-#        self.attribute_name = 
 
 
     def get_data(self):
@@ -76,3 +75,5 @@ class market_fooding:
         print(self.origin)
         print(self.material_only)
 
+    def compare_db_data(self):
+        print('test')
