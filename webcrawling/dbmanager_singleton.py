@@ -19,7 +19,6 @@ class db_manager(object):
                     print(sql)
                     cursor.execute(sql)
                     results = cursor.fetchall()
-                    self.get_column_name()
                 #for obj in results:
                 #    market_data.append(obj.get('MARKET_COINID'))
                 return results

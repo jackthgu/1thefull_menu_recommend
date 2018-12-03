@@ -12,8 +12,8 @@ from dbmanager_singleton import db_manager
 
 
 class market_fooding:
-
     market_name='fooding'
+    market_address = 'http://www.fooding.io/'
     name = []  # 음식이름
     price = []  # 가격
     nutrient = []  # 영양소(아직 없음)
@@ -38,6 +38,8 @@ class market_fooding:
         self.p1 = re.compile('(\w+\(?\w+\)?)')
         self.p2 = re.compile('(\d+)')
         self.selected_data = self.dbmanager.select_market_product("fooding")
+        self.column_dict = self.selected_data[0].keys()
+        pdb.set_trace()
 
 
     def get_data(self):
