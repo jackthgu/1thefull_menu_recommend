@@ -10,6 +10,7 @@ import pdb
 from dbmanager_singleton import db_manager
 
 
+
 class market_fooding:
 
     market_name='fooding'
@@ -36,6 +37,7 @@ class market_fooding:
         self.p = re.compile('^(\d+[a-z])')
         self.p1 = re.compile('(\w+\(?\w+\)?)')
         self.p2 = re.compile('(\d+)')
+        self.selected_data = self.dbmanager.select_market_product("fooding")
 
 
     def get_data(self):

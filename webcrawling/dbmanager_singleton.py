@@ -12,6 +12,21 @@ class db_manager(object):
                                               cursorclass=pymysql.cursors.DictCursor)
         def __get_connection(self):
             return self.connection
+        def select_market_product(self,market_name):
+            try:
+                with self.connection.cursor() as cursor:
+                    sql = "SELECT * FROM recipe_proto.online_market_recipe WHERE online_market_name = '%s';" % market_name
+                    print(sql)
+                    cursor.execute(sql)
+                    results = cursor.fetchall()
+                    self.get_column_name()
+                #for obj in results:
+                #    market_data.append(obj.get('MARKET_COINID'))
+                return results
+
+            finally:
+                print("end query")
+
 
     instance = None
 
@@ -28,27 +43,8 @@ class db_manager(object):
         return db_manager.instance.__get_connection()
 
         
-    def select_market_product(self,market_name):
-        try:
-            with self.get_connection.connection.cursor() as cursor:
-                sql = "SELECT * FROM recipe_proto.online_market_recipe WHERE %s;" % market_name
-                cursor.execute(sql)
-                results = cursor.fetchall()
-                for obj in results:
-                    self.market_ids.append(obj.get('MARKET_COINID'))
-                print(self.market_ids)
 
-        finally:
-            print("end query")
 
-    def get_column_name(self):
-        try:
-            with self.get_connection.connection.cursor() as cursor:
-                for desc in cursor.description:
-                    self.colname.append(desc[0])
-                    self.coltype.append(desc[1])
-        finally:
-            return self.colname
 
     def delete_data(self):
         try:
